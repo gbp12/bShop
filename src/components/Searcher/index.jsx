@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import getBShopsByName from "../../api/fetch/getBShopsByName";
+
 export default function Searcher() {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -9,10 +11,10 @@ export default function Searcher() {
       clearTimeout(searchTimeout);
     }
     const timeoutId = setTimeout(() => {
-      if (searchTerm.length >= 1) {
+      if (searchTerm.length >= 3) {
         fetchData();
       }
-    }, 500);
+    }, 300);
 
     setSearchTimeout(timeoutId);
 
@@ -22,17 +24,10 @@ export default function Searcher() {
   }, [searchTerm]);
 
   const fetchData = async () => {
-    try {
-      console.log(" se hace la busqueda");
-      /*      const response = await fetch(
-        `https://api.example.com/search?q=${searchTerm}`
-      );
-      const data = await response.json();
+    const bShops = await getBShopsByName(searchTerm);
+    console.log("🚀 ~ fetchData ~ bShops:", bShops);
 
-      setSearchResults(data.results);*/
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+    setSearchResults(bShops);
   };
 
   const handleInputChange = (e) => {
@@ -47,11 +42,15 @@ export default function Searcher() {
         value={searchTerm}
         onChange={handleInputChange}
       />
-      <ul>
-        {searchResults.map((result) => (
-          <li key={result.id}>{result.name}</li>
-        ))}
-      </ul>
+      {searchResults.length > 0 &&
+        searchResults.map((result) => {
+          return (
+            <div key={result.id}>
+              <h1>{result.name}</h1>
+              <h2>{result.initialDescription}</h2>
+            </div>
+          );
+        })}
     </div>
   );
 }
